@@ -77,34 +77,9 @@ var mapd2avro IO[Void] = Bind(
 	},
 )
 
-func cborMapsToStdoutDummy(i iter.Seq2[map[string]any, error]) IO[Void] {
-	return func(ctx context.Context) (Void, error) {
-		for m, e := range i {
-			select {
-			case <-ctx.Done():
-				return Empty, ctx.Err()
-			default:
-			}
-
-			if nil != e {
-				return Empty, e
-			}
-
-			fmt.Printf("%v\n", m)
-		}
-		return Empty, nil
-	}
-}
-
-var stdin2cbormaps2stdoutDummy IO[Void] = Bind(
-	mapd,
-	cborMapsToStdoutDummy,
-)
-
 var sub IO[Void] = func(ctx context.Context) (Void, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	//return stdin2cbormaps2stdoutDummy(ctx)
 	return mapd2avro(ctx)
 }
 
